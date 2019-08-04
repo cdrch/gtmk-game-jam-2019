@@ -9,16 +9,17 @@ public class SpawnTetromino : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SpawnNewTetromino();
+        //SpawnNewTetromino();
     }
 
-    public void SpawnNewTetromino()
+    public void SpawnNewTetromino(int controllingPlayerId)
     {
         GameObject tetromino = Instantiate(tetrominoes[Random.Range(0, tetrominoes.Length)], transform.position, Quaternion.identity);
+        tetromino.GetComponent<Block>().controllingPlayerId = controllingPlayerId;
         if(!tetromino.GetComponent<Block>().ValidMove()) // if blocked on spawn
         {
             Destroy(tetromino);
-            Debug.Log("Game Over!");
+            GameManager.instance.GameOver();
             this.enabled = false;
         }
     }

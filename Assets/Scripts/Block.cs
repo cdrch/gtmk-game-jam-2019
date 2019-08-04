@@ -15,6 +15,8 @@ public class Block : MonoBehaviour
     public static int width = 10;
     private static Transform[,] grid = new Transform[width, height];
 
+    public int controllingPlayerId = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,26 +33,29 @@ public class Block : MonoBehaviour
             return;
         }
 
-        if (keyboard.leftArrowKey.wasPressedThisFrame)
+        if (GameManager.instance.IsHumanPlayerActive())
         {
-            transform.position += new Vector3(-1, 0, 0);
-            if (!ValidMove())
-                transform.position -= new Vector3(-1, 0, 0);
-        }
-        else if (keyboard.rightArrowKey.wasPressedThisFrame)
-        {
-            transform.position += new Vector3(1, 0, 0);
-            if (!ValidMove())
-                transform.position -= new Vector3(1, 0, 0);
-        }
-        else if (keyboard.upArrowKey.wasPressedThisFrame)
-        {
-            transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
-            if (!ValidMove())
-                transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90);
-        }
+            if (keyboard.leftArrowKey.wasPressedThisFrame)
+            {
+                transform.position += new Vector3(-1, 0, 0);
+                if (!ValidMove())
+                    transform.position -= new Vector3(-1, 0, 0);
+            }
+            else if (keyboard.rightArrowKey.wasPressedThisFrame)
+            {
+                transform.position += new Vector3(1, 0, 0);
+                if (!ValidMove())
+                    transform.position -= new Vector3(1, 0, 0);
+            }
+            else if (keyboard.upArrowKey.wasPressedThisFrame)
+            {
+                transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
+                if (!ValidMove())
+                    transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90);
+            }
+        }        
 
-        if (Time.time - previousTime > (keyboard.downArrowKey.isPressed ? forcedFallTime : fallTime))
+        if (Time.time - previousTime > ((keyboard.downArrowKey.isPressed && GameManager.instance.IsHumanPlayerActive()) ? forcedFallTime : fallTime))
         {
             transform.position += new Vector3(0, -1, 0);
             if (!ValidMove())
@@ -59,7 +64,7 @@ public class Block : MonoBehaviour
                 AddToGrid();
                 CheckForLines();
                 this.enabled = false;
-                FindObjectOfType<SpawnTetromino>().SpawnNewTetromino();
+                GameManager.instance.EndTurn(controllingPlayerId);
             }                
             previousTime = Time.time;
         }
